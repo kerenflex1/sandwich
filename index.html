@@ -69,20 +69,6 @@
       box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
       outline: none;
     }
-    .child-section {
-      margin: 20px;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-light);
-      overflow: hidden;
-    }
-    .child-header {
-      background: var(--primary-gradient);
-      color: #fff;
-      padding: 12px 20px;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
     .order-table-wrapper {
       overflow-x: auto;
       padding: 0 20px 20px;
@@ -131,7 +117,6 @@
     }
     @media (max-width: 600px) {
       body { padding: 10px; }
-      .child-section { margin: 15px 0; }
       .form-group { padding: 0 10px; }
       .order-table th,
       .order-table td { padding: 8px; font-size: 0.85rem; }
@@ -142,16 +127,29 @@
 <body>
   <div class="container">
     <header>
-      <h1>טופס הזמנת כריכים</h1>
+      <h1>טופס הזמנת כריכים ושתיה</h1>
     </header>
 
-    <div class="form-group">
-      <label for="numChildren">מספר ילדים</label>
-      <input type="number" id="numChildren" name="numChildren" min="1" max="10" value="1">
-    </div>
-
     <form id="orderForm">
-      <div id="childrenContainer"></div>
+      <div class="form-group">
+        <label>בחר כמות לכל מוצר לפי יום (ראשון–שישי)</label>
+        <div class="order-table-wrapper">
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>מוצר</th>
+                <th>ראשון</th>
+                <th>שני</th>
+                <th>שלישי</th>
+                <th>רביעי</th>
+                <th>חמישי</th>
+                <th>שישי</th>
+              </tr>
+            </thead>
+            <tbody id="productContainer"></tbody>
+          </table>
+        </div>
+      </div>
 
       <h2 class="form-group">פרטי המזמין</h2>
       <div class="form-group"><label for="ordererName">שם המזמין</label><input type="text" id="ordererName" name="ordererName" required></div>
@@ -166,92 +164,64 @@
   </div>
 
   <script>
-    const sandwichOptions = [
-      {value:'', text:'– ללא כריך –'},
-      {value:'tuna', text:'טונה'},
-      {value:'bulgarian', text:'בולגרית'},
-      {value:'egg', text:'ביצה קשה'},
-      {value:'eggSalad', text:'סלט ביצים'},
-      {value:'cheese', text:'גבינה צהובה'},
-      {value:'nutella', text:'נוטלה'},
-      {value:'chocolate', text:'שוקולד השחר'}
+    const products = [
+      { value: 'tuna', text: 'כריך טונה' },
+      { value: 'bulgarian', text: 'כריך בולגרית' },
+      { value: 'egg', text: 'כריך ביצה קשה' },
+      { value: 'eggSalad', text: 'כריך סלט ביצים' },
+      { value: 'cheese', text: 'כריך גבינה צהובה' },
+      { value: 'nutella', text: 'כריך נוטלה' },
+      { value: 'chocolate', text: 'כריך שוקולד השחר' },
+      { value: 'tropic', text: 'שתייה טרופית' },
+      { value: 'water', text: 'מים' }
     ];
-    const drinkOptions = [
-      {value:'', text:'– ללא שתיה –'},
-      {value:'tropic', text:'טרופית'},
-      {value:'water', text:'מים'}
-    ];
-    const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי'];
-    const childrenContainer = document.getElementById('childrenContainer');
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday'];
+    const daysLabel = ['ראשון','שני','שלישי','רביעי','חמישי','שישי'];
+    const container = document.getElementById('productContainer');
 
-    function generateChildForms() {
-      childrenContainer.innerHTML = '';
-      const num = parseInt(document.getElementById('numChildren').value);
-      for (let i = 1; i <= num; i++) {
-        const section = document.createElement('div');
-        section.className = 'child-section';
-        section.innerHTML = `
-          <div class="child-header">ילד ${i}</div>
-          <div class="form-group">
-            <label>שם הילד</label>
-            <input type="text" name="child${i}_Name" required>
-          </div>
-          <div class="order-table-wrapper">
-            <table class="order-table">
-              <thead>
-                <tr><th>יום</th><th>כריך</th><th>שתיה</th></tr>
-              </thead>
-              <tbody>
-                ${days.map(day => `
-                  <tr>
-                    <td>${day}</td>
-                    <td>
-                      <select name="child${i}_${day}_Sandwich">
-                        ${sandwichOptions.map(o=>`<option value="${o.value}">${o.text}</option>`).join('')}
-                      </select>
-                    </td>
-                    <td>
-                      <select name="child${i}_${day}_Drink">
-                        ${drinkOptions.map(o=>`<option value="${o.value}">${o.text}</option>`).join('')}
-                      </select>
-                    </td>
-                  </tr>`).join('')}
-              </tbody>
-            </table>
-          </div>`;
-        childrenContainer.appendChild(section);
-      }
-    }
-
-    document.getElementById('numChildren').addEventListener('change', generateChildForms);
-    generateChildForms();
+    // Generate product x day quantity inputs
+    products.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.text}</td>
+        ${days.map((d,i) => `
+          <td>
+            <input type="number" name="${p.value}_${d}" min="0" value="0">
+          </td>`).join('')}
+      `;
+      container.appendChild(tr);
+    });
 
     document.getElementById('orderForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const formData = new FormData(e.target);
       const data = {};
-      formData.forEach((val, key) => {
-        if (data[key]) {
-          Array.isArray(data[key]) ? data[key].push(val) : data[key] = [data[key], val];
-        } else {
+
+      // Collect quantities
+      products.forEach(p => {
+        days.forEach(d => {
+          const key = `${p.value}_${d}`;
+          const val = formData.get(key) || '0';
           data[key] = val;
-        }
+        });
       });
 
-      // הוספת גרש לפני מספר הטלפון
-      if (data.phone) {
-        data.phone = "'" + data.phone;
-      }
+      // Collect orderer fields
+      ['ordererName','phone','email','address','apartment','entryCode'].forEach(f => {
+        let v = formData.get(f) || '';
+        if (f === 'phone' && v) v = "'" + v;  // prepend apostrophe
+        data[f] = v;
+      });
 
       const webhookUrl = 'https://hook.eu2.make.com/d2nf574bv4ls5brc5gknv92nus7yaqe4';
 
       fetch(webhookUrl, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
       .then(res => {
-        console.log('Response status:', res.status, res);
+        console.log('Response status:', res.status);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.text();
       })
