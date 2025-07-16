@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>טופס הזמנת כריכים לבית הספר</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(90deg,#667eea,#764ba2);
+      --bg-gradient: linear-gradient(135deg,#f0f4f8,#d9e2ec);
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --radius: 12px;
+      --shadow-light: 0 4px 12px rgba(0,0,0,0.1);
+      --transition-fast: 0.2s ease-in-out;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Assistant', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
+    }
+    header {
+      background: var(--primary-gradient);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    .form-group {
+      padding: 0 20px;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      transition: border var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    input:focus,
+    select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+      outline: none;
+    }
+    .child-section {
+      margin: 20px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
+    }
+    .child-header {
+      background: var(--primary-gradient);
+      color: #fff;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .order-table-wrapper {
+      overflow-x: auto;
+      padding: 0 20px 20px;
+    }
+    .order-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 600px;
+    }
+    .order-table th,
+    .order-table td {
+      padding: 10px;
+      text-align: center;
+    }
+    .order-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    .order-table tbody tr:nth-child(odd) td {
+      background: #fafbfc;
+    }
+    .order-table tbody tr:nth-child(even) td {
+      background: #ffffff;
+    }
+    button {
+      display: block;
+      width: calc(100% - 40px);
+      margin: 20px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light);
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .child-section { margin: 15px 0; }
+      .form-group { padding: 0 10px; }
+      .order-table th,
+      .order-table td { padding: 8px; font-size: 0.85rem; }
+      button { margin: 15px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>טופס הזמנת כריכים</h1>
+    </header>
+
+    <div class="form-group">
+      <label for="numChildren">מספר ילדים</label>
+      <input type="number" id="numChildren" name="numChildren" min="1" max="10" value="1">
+    </div>
+
+    <form id="orderForm">
+      <div id="childrenContainer"></div>
+
+      <h2 class="form-group">פרטי המזמין</h2>
+      <div class="form-group"><label for="ordererName">שם המזמין</label><input type="text" id="ordererName" name="ordererName" required></div>
+      <div class="form-group"><label for="phone">טלפון</label><input type="tel" id="phone" name="phone" required></div>
+      <div class="form-group"><label for="email">אימייל</label><input type="email" id="email" name="email" required></div>
+      <div class="form-group"><label for="address">כתובת</label><input type="text" id="address" name="address" required></div>
+      <div class="form-group"><label for="apartment">דירה</label><input type="text" id="apartment" name="apartment"></div>
+      <div class="form-group"><label for="entryCode">קוד כניסה</label><input type="text" id="entryCode" name="entryCode"></div>
+
+      <button type="submit">שלח הזמנה</button>
+    </form>
+  </div>
+
+  <script>
+    const sandwichOptions = [
+      {value:'', text:'– ללא כריך –'},
+      {value:'tuna', text:'טונה'},
+      {value:'bulgarian', text:'בולגרית'},
+      {value:'egg', text:'ביצה קשה'},
+      {value:'eggSalad', text:'סלט ביצים'},
+      {value:'cheese', text:'גבינה צהובה'},
+      {value:'nutella', text:'נוטלה'},
+      {value:'chocolate', text:'שוקולד השחר'}
+    ];
+    const drinkOptions = [
+      {value:'', text:'– ללא שתיה –'},
+      {value:'tropic', text:'טרופית'},
+      {value:'water', text:'מים'}
+    ];
+    const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי'];
+    const childrenContainer = document.getElementById('childrenContainer');
+
+    function generateChildForms() {
+      childrenContainer.innerHTML = '';
+      const num = parseInt(document.getElementById('numChildren').value);
+      for (let i = 1; i <= num; i++) {
+        const section = document.createElement('div');
+        section.className = 'child-section';
+        section.innerHTML = `
+          <div class="child-header">ילד ${i}</div>
+          <div class="form-group">
+            <label>שם הילד</label>
+            <input type="text" name="child${i}_Name" required>
+          </div>
+          <div class="order-table-wrapper">
+            <table class="order-table">
+              <thead>
+                <tr><th>יום</th><th>כריך</th><th>שתיה</th></tr>
+              </thead>
+              <tbody>
+                ${days.map(day => `
+                  <tr>
+                    <td>${day}</td>
+                    <td>
+                      <select name="child${i}_${day}_Sandwich">
+                        ${sandwichOptions.map(o=>`<option value="${o.value}">${o.text}</option>`).join('')}
+                      </select>
+                    </td>
+                    <td>
+                      <select name="child${i}_${day}_Drink">
+                        ${drinkOptions.map(o=>`<option value="${o.value}">${o.text}</option>`).join('')}
+                      </select>
+                    </td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+        childrenContainer.appendChild(section);
+      }
+    }
+
+    document.getElementById('numChildren').addEventListener('change', generateChildForms);
+    generateChildForms();
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {};
+      formData.forEach((val,key) => {
+        if (data[key]) {
+          Array.isArray(data[key]) ? data[key].push(val) : data[key] = [data[key],val];
+        } else data[key] = val;
+      });
+      // החליפו כאן לכתובת ה-webhook שלכם:
+      const webhookUrl = 'https://your-webhook-url-here';
+      fetch(webhookUrl, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(()=> alert('ההזמנה נשלחה בהצלחה!'))
+      .catch(()=> alert('שגיאה בשליחת ההזמנה.'));
+    });
+  </script>
+</body>
+</html>
