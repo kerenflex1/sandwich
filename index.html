@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Become Noa</title>
+    <title>Journey to Become Noa</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; }
         canvas { display: block; width: 100vw; height: 100vh; }
@@ -37,24 +37,42 @@
         window.addEventListener('resize', resizeCanvas);
 
         // Game variables
-        let player = { x: canvas.width / 2, y: canvas.height - 50, speed: 0, maxSpeed: 10, width: 20, height: 40 };
-        let egg = { x: canvas.width / 2, y: 50, radius: 30 };
+        const distanceToEgg = 20000;
+        let player = { 
+            world_x: canvas.width / 2, 
+            world_y: 0, 
+            screen_y: canvas.height - 100, 
+            speed: 0, 
+            maxSpeed: 10, 
+            width: 20, 
+            height: 40 
+        };
+        let egg = { 
+            world_x: canvas.width / 2, 
+            world_y: -distanceToEgg, 
+            radius: 30 
+        };
         let obstacles = [];
         let competitors = [];
-        let score = 0;
+        let particles = [];
         let gameOver = false;
         let tiltX = 0;
         let tapCount = 0;
         let lastTapTime = 0;
         let gameWon = false;
 
-        // Generate obstacles (bacteria)
+        // Function to get screen Y from world Y
+        function getScreenY(world_y) {
+            return player.screen_y + (world_y - player.world_y);
+        }
+
+        // Generate obstacles (bacteria) along the path
         function generateObstacles() {
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 200; i++) {
                 obstacles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * (canvas.height - 100) + 50,
-                    radius: 15 + Math.random() * 20,
+                    world_x: Math.random() * canvas.width,
+                    world_y: -Math.random() * distanceToEgg,
+                    radius: 5 + Math.random() * 5, // Much smaller
                     speed: 1 + Math.random() * 2
                 });
             }
@@ -64,8 +82,8 @@
         function generateCompetitors() {
             for (let i = 0; i < 5; i++) {
                 competitors.push({
-                    x: Math.random() * canvas.width,
-                    y: canvas.height - 50,
+                    world_x: Math.random() * canvas.width,
+                    world_y: 0,
                     speed: 2 + Math.random() * 3,
                     width: 15,
                     height: 30
@@ -91,46 +109,84 @@
             tiltX = event.gamma / 30; // Normalize tilt (-1 to 1)
         });
 
-        // Draw sperm (player and competitors)
-        function drawSperm(x, y, width, height, isPlayer = false) {
+        // Draw sperm (player and competitors) with wavy tail
+        function drawSperm(world_x, world_y, width, height, isPlayer = false) {
+            const screen_y = getScreenY(world_y);
+            const screen_x = world_x;
+            const time = Date.now() / 100;
             ctx.fillStyle = isPlayer ? '#fff' : '#aaa';
             ctx.beginPath();
-            ctx.ellipse(x, y, width / 2, height / 2, 0, 0, Math.PI * 2);
+            ctx.ellipse(screen_x, screen_y, width / 2, height / 2, 0, 0, Math.PI * 2);
             ctx.fill();
+
+            // Wavy tail
+            const tailLength = height * 1.5;
+            const segments = 5;
+            const segLen = tailLength / segments;
             ctx.beginPath();
-            ctx.moveTo(x, y + height / 2);
-            ctx.lineTo(x, y + height * 2);
+            ctx.moveTo(screen_x, screen_y + height / 2);
+            for (let i = 1; i <= segments; i++) {
+                const wiggle = Math.sin(time + i * 0.5) * (isPlayer ? 10 : 5) * (i / segments);
+                const tx = screen_x + wiggle;
+                const ty = screen_y + height / 2 + i * segLen;
+                ctx.lineTo(tx, ty);
+            }
             ctx.strokeStyle = isPlayer ? '#fff' : '#aaa';
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 3;
             ctx.stroke();
         }
 
-        // Draw egg
+        // Draw egg with pulse
         function drawEgg() {
+            const screen_x = egg.world_x;
+            const screen_y = getScreenY(egg.world_y);
+            const pulse = 1 + Math.sin(Date.now() / 500) * 0.1;
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+            ctx.beginPath();
+            ctx.arc(screen_x, screen_y, egg.radius * pulse * 1.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
             ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
             ctx.beginPath();
-            ctx.arc(egg.x, egg.y, egg.radius, 0, Math.PI * 2);
+            ctx.arc(screen_x, screen_y, egg.radius * pulse, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
             ctx.beginPath();
-            ctx.arc(egg.x, egg.y, egg.radius * 0.6, 0, Math.PI * 2);
+            ctx.arc(screen_x, screen_y, egg.radius * pulse * 0.6, 0, Math.PI * 2);
             ctx.fill();
         }
 
         // Draw obstacles (bacteria)
         function drawObstacles() {
             obstacles.forEach(obs => {
+                const screen_x = obs.world_x;
+                const screen_y = getScreenY(obs.world_y);
                 ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
                 ctx.beginPath();
-                ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
+                ctx.arc(screen_x, screen_y, obs.radius, 0, Math.PI * 2);
                 ctx.fill();
             });
         }
 
-        // Collision detection
+        // Draw particles
+        function drawParticles() {
+            particles.forEach(p => {
+                const screen_x = p.world_x;
+                const screen_y = getScreenY(p.world_y);
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(screen_x, screen_y, 2 + Math.random() * 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // Collision detection in world space
         function checkCollision(obj1, obj2) {
-            const dx = obj1.x - obj2.x;
-            const dy = obj1.y - obj2.y;
+            const dx = obj1.world_x - obj2.world_x;
+            const dy = obj1.world_y - obj2.world_y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             return distance < (obj1.radius || obj1.width / 2) + (obj2.radius || obj2.width / 2);
         }
@@ -139,27 +195,27 @@
         function gameLoop() {
             if (gameOver) return;
 
-            ctx.fillStyle = '#222';
+            // Background gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#001133');
+            grad.addColorStop(1, '#003366');
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Update player
-            player.x += tiltX * 5;
-            player.y -= player.speed;
-            player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
+            player.world_x += tiltX * 5;
+            player.world_x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.world_x));
+            player.world_y -= player.speed;
             player.speed *= 0.98; // Gradual speed decay
 
-            // Update obstacles
+            // Update obstacles (move down in world)
             obstacles.forEach(obs => {
-                obs.y += obs.speed;
-                if (obs.y > canvas.height + obs.radius) {
-                    obs.y = -obs.radius;
-                    obs.x = Math.random() * canvas.width;
-                }
+                obs.world_y += obs.speed;
             });
 
-            // Update competitors
+            // Update competitors (move up in world)
             competitors.forEach(comp => {
-                comp.y -= comp.speed;
+                comp.world_y -= comp.speed;
                 if (checkCollision(comp, egg)) {
                     gameOver = true;
                     messageDiv.textContent = 'Game Over: Another sperm reached the egg!';
@@ -167,7 +223,20 @@
                 }
             });
 
-            // Check collisions with obstacles or walls
+            // Update particles
+            if (player.speed > 1 && Math.random() < 0.5) {
+                particles.push({
+                    world_x: player.world_x + (Math.random() - 0.5) * 10,
+                    world_y: player.world_y + player.height / 2,
+                    life: 0.5 + Math.random() * 0.5
+                });
+            }
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.life -= 0.01;
+            });
+
+            // Check collisions with obstacles
             obstacles.forEach(obs => {
                 if (checkCollision(player, obs)) {
                     gameOver = true;
@@ -175,12 +244,6 @@
                     messageDiv.style.display = 'block';
                 }
             });
-
-            if (player.x - player.width / 2 < 0 || player.x + player.width / 2 > canvas.width) {
-                gameOver = true;
-                messageDiv.textContent = 'Game Over: Hit the wall!';
-                messageDiv.style.display = 'block';
-            }
 
             // Check win condition
             if (checkCollision(player, egg)) {
@@ -191,18 +254,11 @@
             }
 
             // Draw everything
+            drawParticles();
             drawEgg();
             drawObstacles();
-            drawSperm(player.x, player.y, player.width, player.height, true);
-            competitors.forEach(comp => drawSperm(comp.x, comp.y, comp.width, comp.height));
-
-            // Win animation
-            if (gameWon) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.beginPath();
-                ctx.arc(egg.x, egg.y, egg.radius * (1 + Math.sin(Date.now() / 200) * 0.2), 0, Math.PI * 2);
-                ctx.fill();
-            }
+            competitors.forEach(comp => drawSperm(comp.world_x, comp.world_y, comp.width, comp.height));
+            drawSperm(player.world_x, player.world_y, player.width, player.height, true);
 
             requestAnimationFrame(gameLoop);
         }
