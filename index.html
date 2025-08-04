@@ -1,239 +1,216 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>טופס הזמנת כריכים לבית הספר</title>
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-gradient: linear-gradient(90deg,#667eea,#764ba2);
-      --bg-gradient: linear-gradient(135deg,#f0f4f8,#d9e2ec);
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --radius: 12px;
-      --shadow-light: 0 4px 12px rgba(0,0,0,0.1);
-      --transition-fast: 0.2s ease-in-out;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: 'Assistant', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-color);
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-light);
-      overflow: hidden;
-    }
-    header {
-      background: var(--primary-gradient);
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-    .form-group {
-      padding: 0 20px;
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    input[type="number"],
-    select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: var(--radius);
-      font-size: 0.95rem;
-      transition: border var(--transition-fast), box-shadow var(--transition-fast);
-    }
-    input:focus,
-    select:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
-      outline: none;
-    }
-    .order-table-wrapper {
-      overflow-x: auto;
-      padding: 0 20px 20px;
-    }
-    .order-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      min-width: 600px;
-    }
-    .order-table th,
-    .order-table td {
-      padding: 10px;
-      text-align: center;
-    }
-    .order-table th {
-      background: #f3f4f6;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-    }
-    .order-table tbody tr:nth-child(odd) td {
-      background: #fafbfc;
-    }
-    .order-table tbody tr:nth-child(even) td {
-      background: #ffffff;
-    }
-    button {
-      display: block;
-      width: calc(100% - 40px);
-      margin: 20px;
-      padding: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-      background: var(--primary-gradient);
-      border: none;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-light);
-      cursor: pointer;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-    }
-    @media (max-width: 600px) {
-      body { padding: 10px; }
-      .form-group { padding: 0 10px; }
-      .order-table th,
-      .order-table td { padding: 8px; font-size: 0.85rem; }
-      button { margin: 15px 10px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Become Noa</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #message { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            font-size: 24px; 
+            text-align: center; 
+            display: none; 
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>טופס הזמנת כריכים ושתיה</h1>
-    </header>
+    <canvas id="gameCanvas"></canvas>
+    <div id="message"></div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const messageDiv = document.getElementById('message');
 
-    <form id="orderForm">
-      <div class="form-group">
-        <label>בחר כמות לכל מוצר לפי יום (ראשון–שישי)</label>
-        <div class="order-table-wrapper">
-          <table class="order-table">
-            <thead>
-              <tr>
-                <th>מוצר</th>
-                <th>ראשון</th>
-                <th>שני</th>
-                <th>שלישי</th>
-                <th>רביעי</th>
-                <th>חמישי</th>
-                <th>שישי</th>
-              </tr>
-            </thead>
-            <tbody id="productContainer"></tbody>
-          </table>
-        </div>
-      </div>
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-      <h2 class="form-group">פרטי המזמין</h2>
-      <div class="form-group"><label for="ordererName">שם המזמין</label><input type="text" id="ordererName" name="ordererName" required></div>
-      <div class="form-group"><label for="phone">טלפון</label><input type="tel" id="phone" name="phone" required></div>
-      <div class="form-group"><label for="email">אימייל</label><input type="email" id="email" name="email" required></div>
-      <div class="form-group"><label for="address">כתובת</label><input type="text" id="address" name="address" required></div>
-      <div class="form-group"><label for="apartment">דירה</label><input type="text" id="apartment" name="apartment"></div>
-      <div class="form-group"><label for="entryCode">קוד כניסה</label><input type="text" id="entryCode" name="entryCode"></div>
+        // Game variables
+        let player = { x: canvas.width / 2, y: canvas.height - 50, speed: 0, maxSpeed: 10, width: 20, height: 40 };
+        let egg = { x: canvas.width / 2, y: 50, radius: 30 };
+        let obstacles = [];
+        let competitors = [];
+        let score = 0;
+        let gameOver = false;
+        let tiltX = 0;
+        let tapCount = 0;
+        let lastTapTime = 0;
+        let gameWon = false;
 
-      <button type="submit">שלח הזמנה</button>
-    </form>
-  </div>
+        // Generate obstacles (bacteria)
+        function generateObstacles() {
+            for (let i = 0; i < 20; i++) {
+                obstacles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * (canvas.height - 100) + 50,
+                    radius: 15 + Math.random() * 20,
+                    speed: 1 + Math.random() * 2
+                });
+            }
+        }
 
-  <script>
-    const products = [
-      { value: 'tuna', text: 'כריך טונה' },
-      { value: 'bulgarian', text: 'כריך בולגרית' },
-      { value: 'egg', text: 'כריך ביצה קשה' },
-      { value: 'eggSalad', text: 'כריך סלט ביצים' },
-      { value: 'cheese', text: 'כריך גבינה צהובה' },
-      { value: 'nutella', text: 'כריך נוטלה' },
-      { value: 'chocolate', text: 'כריך שוקולד השחר' },
-      { value: 'tropic', text: 'שתייה טרופית' },
-      { value: 'water', text: 'מים' }
-    ];
-    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday'];
-    const daysLabel = ['ראשון','שני','שלישי','רביעי','חמישי','שישי'];
-    const container = document.getElementById('productContainer');
+        // Generate competitor sperm
+        function generateCompetitors() {
+            for (let i = 0; i < 5; i++) {
+                competitors.push({
+                    x: Math.random() * canvas.width,
+                    y: canvas.height - 50,
+                    speed: 2 + Math.random() * 3,
+                    width: 15,
+                    height: 30
+                });
+            }
+        }
 
-    // Generate product x day quantity inputs
-    products.forEach(p => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.text}</td>
-        ${days.map((d,i) => `
-          <td>
-            <input type="number" name="${p.value}_${d}" min="0" value="0">
-          </td>`).join('')}
-      `;
-      container.appendChild(tr);
-    });
-
-    document.getElementById('orderForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = {};
-
-      // Collect quantities
-      products.forEach(p => {
-        days.forEach(d => {
-          const key = `${p.value}_${d}`;
-          const val = formData.get(key) || '0';
-          data[key] = val;
+        // Handle tap for speed
+        canvas.addEventListener('touchstart', () => {
+            const currentTime = Date.now();
+            if (currentTime - lastTapTime < 300) {
+                tapCount++;
+                player.speed = Math.min(tapCount * 2, player.maxSpeed);
+            } else {
+                tapCount = 1;
+                player.speed = 2;
+            }
+            lastTapTime = currentTime;
         });
-      });
 
-      // Collect orderer fields
-      ['ordererName','phone','email','address','apartment','entryCode'].forEach(f => {
-        let v = formData.get(f) || '';
-        if (f === 'phone' && v) v = "'" + v;  // prepend apostrophe
-        data[f] = v;
-      });
+        // Handle device tilt for steering
+        window.addEventListener('deviceorientation', (event) => {
+            tiltX = event.gamma / 30; // Normalize tilt (-1 to 1)
+        });
 
-      const webhookUrl = 'https://hook.eu2.make.com/d2nf574bv4ls5brc5gknv92nus7yaqe4';
+        // Draw sperm (player and competitors)
+        function drawSperm(x, y, width, height, isPlayer = false) {
+            ctx.fillStyle = isPlayer ? '#fff' : '#aaa';
+            ctx.beginPath();
+            ctx.ellipse(x, y, width / 2, height / 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x, y + height / 2);
+            ctx.lineTo(x, y + height * 2);
+            ctx.strokeStyle = isPlayer ? '#fff' : '#aaa';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+        }
 
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-      .then(res => {
-        console.log('Response status:', res.status);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
-      })
-      .then(body => {
-        console.log('Response body:', body);
-        alert('ההזמנה נשלחה בהצלחה!');
-      })
-      .catch(err => {
-        console.error('Fetch error:', err);
-        alert('שגיאה בשליחת ההזמנה: ' + err.message);
-      });
-    });
-  </script>
+        // Draw egg
+        function drawEgg() {
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+            ctx.beginPath();
+            ctx.arc(egg.x, egg.y, egg.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.arc(egg.x, egg.y, egg.radius * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw obstacles (bacteria)
+        function drawObstacles() {
+            obstacles.forEach(obs => {
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Collision detection
+        function checkCollision(obj1, obj2) {
+            const dx = obj1.x - obj2.x;
+            const dy = obj1.y - obj2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < (obj1.radius || obj1.width / 2) + (obj2.radius || obj2.width / 2);
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (gameOver) return;
+
+            ctx.fillStyle = '#222';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update player
+            player.x += tiltX * 5;
+            player.y -= player.speed;
+            player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
+            player.speed *= 0.98; // Gradual speed decay
+
+            // Update obstacles
+            obstacles.forEach(obs => {
+                obs.y += obs.speed;
+                if (obs.y > canvas.height + obs.radius) {
+                    obs.y = -obs.radius;
+                    obs.x = Math.random() * canvas.width;
+                }
+            });
+
+            // Update competitors
+            competitors.forEach(comp => {
+                comp.y -= comp.speed;
+                if (checkCollision(comp, egg)) {
+                    gameOver = true;
+                    messageDiv.textContent = 'Game Over: Another sperm reached the egg!';
+                    messageDiv.style.display = 'block';
+                }
+            });
+
+            // Check collisions with obstacles or walls
+            obstacles.forEach(obs => {
+                if (checkCollision(player, obs)) {
+                    gameOver = true;
+                    messageDiv.textContent = 'Game Over: Hit a bacteria!';
+                    messageDiv.style.display = 'block';
+                }
+            });
+
+            if (player.x - player.width / 2 < 0 || player.x + player.width / 2 > canvas.width) {
+                gameOver = true;
+                messageDiv.textContent = 'Game Over: Hit the wall!';
+                messageDiv.style.display = 'block';
+            }
+
+            // Check win condition
+            if (checkCollision(player, egg)) {
+                gameOver = true;
+                gameWon = true;
+                messageDiv.textContent = 'You Became Noa!';
+                messageDiv.style.display = 'block';
+            }
+
+            // Draw everything
+            drawEgg();
+            drawObstacles();
+            drawSperm(player.x, player.y, player.width, player.height, true);
+            competitors.forEach(comp => drawSperm(comp.x, comp.y, comp.width, comp.height));
+
+            // Win animation
+            if (gameWon) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(egg.x, egg.y, egg.radius * (1 + Math.sin(Date.now() / 200) * 0.2), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize game
+        generateObstacles();
+        generateCompetitors();
+        gameLoop();
+    </script>
 </body>
 </html>
