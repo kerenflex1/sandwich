@@ -11,3 +11,5 @@ The site showcases:
 - Final investor call‑to‑action with deck download
 
 Open `index.html` in a modern browser to explore the deck.
+
+Minor update: README refreshed for demo.

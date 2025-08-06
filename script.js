@@ -1,3 +1,4 @@
+// Minor update: script refreshed for demo
 document.addEventListener('DOMContentLoaded', () => {
   startChatDemo();
   setupCharts();
