@@ -3,73 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GroupOS – The Future of Connected Work</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Olamo – Investor Deck</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-  <header class="hero">
-    <div class="hero-content">
-      <h1>GroupOS</h1>
-      <p class="tagline">All-in-one communication powered by AI mini‑apps.</p>
-      <a href="#investment" class="cta-btn">Invest Now</a>
-    </div>
-  </header>
-
-  <section class="feature" id="vision">
-    <div class="text">
-      <h2>Why GroupOS?</h2>
-      <p>Every conversation becomes a workspace. Groups can install or create mini‑apps with natural speech or text—surveys, storefronts, whiteboards, and anything the team dreams up.</p>
-    </div>
-    <div class="image">
-      <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=80" alt="Team collaborating in chat">
-    </div>
-  </section>
-
-  <section class="feature reverse" id="ai-miniapps">
-    <div class="text">
-      <h2>AI at Your Command</h2>
-      <p>Use state‑of‑the‑art AI tools to build new mini‑apps on the fly. Speak or type, and GroupOS delivers the functionality your group needs in seconds.</p>
-    </div>
-    <div class="image">
-      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80" alt="AI generated miniapp">
+<body class="bg-black text-white font-sans">
+  <!-- Hero Section -->
+  <section id="hero" class="relative min-h-screen flex items-center justify-center text-center overflow-hidden">
+    <lottie-player src="https://assets7.lottiefiles.com/packages/lf20_jcikwtux.json" background="transparent" speed="1" loop autoplay class="absolute inset-0 w-full h-full object-cover"></lottie-player>
+    <div class="relative z-10 space-y-6">
+      <h1 class="text-4xl md:text-6xl font-bold">Your group is your world.</h1>
+      <p class="text-xl md:text-2xl">Talk. Build. Earn. All inside your chat.</p>
+      <div class="flex justify-center space-x-4">
+        <a href="#demo" class="bg-[#0097A7] hover:bg-teal-600 text-white px-6 py-3 rounded">See Demo</a>
+        <a href="assets/Olamo_Investor_Deck.pdf" download class="border border-white px-6 py-3 rounded">Download Deck PDF</a>
+      </div>
+      <div class="flex flex-col items-center mt-8">
+         <div class="waveform flex space-x-1 mb-2">
+            <div></div><div></div><div></div><div></div><div></div>
+         </div>
+         <span class="text-sm">Just say it. Olamo makes it real.</span>
+      </div>
     </div>
   </section>
 
-  <section class="feature" id="payments">
-    <div class="text">
-      <h2>Frictionless Payments</h2>
-      <p>Send and receive money using All Pay, Google Pay, or crypto—right inside the chat. Collaboration, commerce, and communication in one secure thread.</p>
-    </div>
-    <div class="image">
-      <img src="https://images.unsplash.com/photo-1637591468021-bf5c87aea7fd?auto=format&fit=crop&w=800&q=80" alt="Payment integration illustration">
-    </div>
-  </section>
-
-  <section class="feature reverse" id="team">
-    <div class="text">
-      <h2>Built by the Best</h2>
-      <p>We recruit the world’s top talent by paying ten times the market rate. Our team moves fast, ships faster, and puts users first.</p>
-    </div>
-    <div class="image">
-      <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80" alt="Elite development team">
+  <!-- Visual Demo -->
+  <section id="demo" class="py-20 bg-gray-900 text-center">
+    <h2 class="text-3xl font-bold mb-4">See Olamo in action</h2>
+    <p class="mb-8 text-gray-400">Friends launch a shared poker game right from their chat.</p>
+    <div class="mx-auto bg-gray-800 rounded-lg shadow-lg p-4 w-full max-w-md h-96 flex flex-col overflow-hidden">
+      <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2 flex flex-col"></div>
     </div>
   </section>
 
-  <section id="investment" class="investment">
-    <h2>Investment Highlights</h2>
-    <ul>
-      <li>Seeking $50M for 20% equity.</li>
-      <li>MVP ready in 3 months.</li>
-      <li>Tens of millions of users within a year.</li>
-      <li>Massive marketing push to dominate the market.</li>
+  <!-- The Problem -->
+  <section id="problem" class="py-20 bg-black">
+    <h2 class="text-3xl text-center font-bold mb-12">Messaging is broken.</h2>
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+      <div class="space-y-4 text-red-400">
+        <div class="flex items-start space-x-3"><span>🔴</span><p>We talk in groups…</p></div>
+        <div class="flex items-start space-x-3"><span>🔴</span><p>But can’t act in them.</p></div>
+        <div class="flex items-start space-x-3"><span>🔴</span><p>Need to jump between apps, tools, spreadsheets, links.</p></div>
+      </div>
+      <div class="space-y-4 text-green-400">
+        <div class="flex items-start space-x-3"><span>🟢</span><p>Olamo fixes this.</p></div>
+        <div class="flex items-start space-x-3"><span>🟢</span><p>From chat to action in seconds.</p></div>
+        <div class="flex items-start space-x-3"><span>🟢</span><p>No friction. No switching apps.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Olamo Enables -->
+  <section id="enables" class="py-20 bg-gray-900">
+    <h2 class="text-3xl text-center font-bold mb-12">What Olamo Enables</h2>
+    <div class="grid md:grid-cols-5 gap-6 max-w-6xl mx-auto">
+      <div class="card">🎤 Voice-to-App creation (no code)</div>
+      <div class="card">🧠 AI generates forms, tools, stores</div>
+      <div class="card">💳 Accept payments (Apple Pay, credit, USDC, ETH)</div>
+      <div class="card">🛍️ Launch a store inside your group</div>
+      <div class="card">📲 Stay inside chat — always</div>
+    </div>
+  </section>
+
+  <!-- Impact Statement -->
+  <section id="impact" class="py-20 bg-black text-center">
+    <blockquote class="text-2xl md:text-3xl font-bold max-w-4xl mx-auto">“What smartphones did for access to the internet — Olamo does for software creation.”</blockquote>
+    <p class="mt-8 max-w-4xl mx-auto text-lg">Anyone, anywhere, can now create and earn from their group chat.</p>
+    <ul class="mt-6 space-y-2 text-lg">
+      <li>Grandma can create a form.</li>
+      <li>Teenagers can run a merch store.</li>
+      <li>Coaches can monetize content.</li>
+      <li>All by speaking.</li>
     </ul>
-    <p class="call">Be part of the platform that redefines how the world works together.</p>
   </section>
 
-  <footer>
-    <p>&copy; 2024 GroupOS. All rights reserved.</p>
-  </footer>
+  <!-- Business Model -->
+  <section id="business-model" class="py-20 bg-gray-900">
+    <h2 class="text-3xl font-bold text-center mb-8">Business Model</h2>
+    <div class="max-w-3xl mx-auto">
+      <canvas id="businessChart"></canvas>
+    </div>
+    <ul class="mt-8 space-y-2 text-center">
+      <li>Freemium for basic use</li>
+      <li>Pro tiers for AI, analytics, stores</li>
+      <li>10–20% transaction fees</li>
+      <li>App Store for creators (revenue share)</li>
+      <li>Brand partnerships and APIs</li>
+    </ul>
+  </section>
+
+  <!-- Market Opportunity -->
+  <section id="market" class="py-20 bg-black">
+    <h2 class="text-3xl font-bold text-center mb-8">Market Opportunity</h2>
+    <div class="max-w-3xl mx-auto">
+      <canvas id="marketChart"></canvas>
+    </div>
+    <ul class="mt-8 text-center space-y-2">
+      <li>2.5B users use messaging daily</li>
+      <li>300M+ creators and group admins</li>
+      <li>$60B+ TAM (Messaging + AI + Creator Economy + Payments)</li>
+      <li>Zero competitors integrating voice + chat + AI + commerce</li>
+    </ul>
+  </section>
+
+  <!-- Use of Funds -->
+  <section id="funds" class="py-20 bg-gray-900">
+    <h2 class="text-3xl font-bold text-center mb-8">Use of Funds</h2>
+    <div class="max-w-3xl mx-auto">
+      <canvas id="fundsChart"></canvas>
+    </div>
+    <ul class="mt-8 text-center space-y-2">
+      <li>50% to hiring top 0.01% talent (10x salary model)</li>
+      <li>25% to infra + OpenAI usage</li>
+      <li>20% to branding & global marketing</li>
+      <li>5% to compliance & legal</li>
+    </ul>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="roadmap" class="py-20 bg-black">
+    <h2 class="text-3xl font-bold text-center mb-8">Roadmap</h2>
+    <div class="overflow-x-auto">
+      <div class="flex space-x-8 px-8 min-w-max">
+        <div class="timeline-item text-center">
+          <h3 class="font-semibold">Month 1–3</h3>
+          <p>MVP (Voice + MiniApps + Chat)</p>
+        </div>
+        <div class="timeline-item text-center">
+          <h3 class="font-semibold">Month 4–6</h3>
+          <p>Payments + Wallet + Crypto</p>
+        </div>
+        <div class="timeline-item text-center">
+          <h3 class="font-semibold">Month 6–9</h3>
+          <p>Beta with 1000 groups + Influencers</p>
+        </div>
+        <div class="timeline-item text-center">
+          <h3 class="font-semibold">Month 10–12</h3>
+          <p>Global launch + creator partnerships</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Philosophy -->
+  <section id="team" class="py-20 bg-gray-900 text-center">
+    <h2 class="text-3xl font-bold mb-8">This is not a startup team. This is a special forces unit.</h2>
+    <p class="max-w-4xl mx-auto">We're paying 10x market to attract the top 0.01% builders worldwide. Move fast, break nothing, launch hard.</p>
+  </section>
+
+  <!-- Final CTA -->
+  <section id="cta" class="relative min-h-[60vh] flex items-center justify-center text-center bg-black">
+    <div>
+      <p class="text-3xl md:text-4xl font-bold mb-8">“The future is not built in an app store.<br>It’s built inside your chat.”</p>
+      <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+        <a href="#" class="bg-[#0097A7] text-white px-6 py-3 rounded">Invest in Olamo</a>
+        <a href="mailto:founders@olamo.com" class="border border-white px-6 py-3 rounded">Book a Meeting</a>
+        <a href="#demo" class="border border-white px-6 py-3 rounded">See Demo</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-8 text-center text-gray-400 text-sm">© 2024 Olamo. All rights reserved.</footer>
 
   <script src="script.js"></script>
 </body>
