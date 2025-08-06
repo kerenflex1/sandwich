@@ -8,10 +8,21 @@ function startChatDemo() {
   const container = document.getElementById('chat-messages');
   if (!container) return;
   const flows = [
-    {user: 'Create a poll', ai: 'Poll created', app: 'Poll MiniApp'},
-    {user: 'Open a store with 3 items', ai: 'Store opened', app: 'Store MiniApp'},
-    {user: 'Track who paid me', ai: 'Tracker ready', app: 'Payment Tracker'},
-    {user: 'Collect USDC', ai: 'Wallet generated', app: 'USDC Wallet'}
+    {
+      user: 'Let\'s play poker tonight',
+      ai: 'Poker table is ready. Dealing cards…',
+      app: { type: 'poker', players: ['You', 'Alice', 'Bob', 'Dana'] }
+    },
+    {
+      user: 'Let\'s order food from Wolt',
+      ai: 'Opening Wolt mini-app…',
+      app: { type: 'wolt', participants: [
+        { name: 'You', choice: 'Pizza' },
+        { name: 'Alice', choice: 'Sushi' },
+        { name: 'Bob', choice: 'Burger' },
+        { name: 'Dana', choice: 'Salad' }
+      ] }
+    }
   ];
   let delay = 0;
   flows.forEach(flow => {
@@ -21,7 +32,7 @@ function startChatDemo() {
         addMessage(container, flow.ai, false, flow.app);
       }, 700);
     }, delay);
-    delay += 2000;
+    delay += 4000;
   });
 }
 
@@ -31,12 +42,69 @@ function addMessage(container, text, isUser, app) {
   bubble.textContent = text;
   container.appendChild(bubble);
   if (app) {
-    const appDiv = document.createElement('div');
-    appDiv.className = 'self-start bg-gray-700 rounded-lg px-4 py-2 max-w-[70%] text-sm text-gray-200';
-    appDiv.textContent = app;
-    container.appendChild(appDiv);
+    if (typeof app === 'string') {
+      const appDiv = document.createElement('div');
+      appDiv.className = 'self-start bg-gray-700 rounded-lg px-4 py-2 max-w-[70%] text-sm text-gray-200';
+      appDiv.textContent = app;
+      container.appendChild(appDiv);
+    } else if (app.type === 'poker') {
+      const pokerApp = createPokerApp(app.players);
+      container.appendChild(pokerApp);
+    } else if (app.type === 'wolt') {
+      const woltApp = createWoltApp(app.participants);
+      container.appendChild(woltApp);
+    }
   }
   container.scrollTop = container.scrollHeight;
+}
+
+function createPokerApp(players) {
+  const appDiv = document.createElement('div');
+  appDiv.className = 'self-start bg-green-700 rounded-lg p-4 max-w-[90%] text-white app-pop';
+  const title = document.createElement('div');
+  title.className = 'font-bold mb-2';
+  title.textContent = 'Poker Game';
+  appDiv.appendChild(title);
+  const table = document.createElement('div');
+  table.className = 'grid grid-cols-2 gap-2';
+  players.forEach((name, idx) => {
+    const seat = document.createElement('div');
+    seat.className = 'bg-green-800 rounded px-2 py-6 text-center relative overflow-hidden';
+    const label = document.createElement('div');
+    label.textContent = name;
+    seat.appendChild(label);
+    for (let c = 0; c < 2; c++) {
+      const card = document.createElement('div');
+      card.className = 'card-deal absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
+      card.textContent = '🂠';
+      card.style.animationDelay = (0.2 * idx + 0.1 * c) + 's';
+      seat.appendChild(card);
+    }
+    table.appendChild(seat);
+  });
+  appDiv.appendChild(table);
+  return appDiv;
+}
+
+function createWoltApp(participants) {
+  const appDiv = document.createElement('div');
+  appDiv.className = 'self-start bg-blue-700 rounded-lg p-4 max-w-[90%] text-white app-pop';
+  const title = document.createElement('div');
+  title.className = 'font-bold mb-2';
+  title.textContent = 'Wolt Order';
+  appDiv.appendChild(title);
+  const list = document.createElement('div');
+  appDiv.appendChild(list);
+  participants.forEach((p, idx) => {
+    setTimeout(() => {
+      const item = document.createElement('div');
+      item.className = 'bg-blue-800 rounded px-2 py-1 mt-1 opacity-0 transition-opacity duration-500';
+      item.textContent = p.name + ': ' + p.choice;
+      list.appendChild(item);
+      requestAnimationFrame(() => item.classList.remove('opacity-0'));
+    }, idx * 600);
+  });
+  return appDiv;
 }
 
 function setupCharts() {
