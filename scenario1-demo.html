@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scenario 1 Demo – Synced Group Chat Adventures</title>
+<style>
+    /* No external dependencies – everything in one file */
+    :root {
+        --cyan: #06B6D4;
+        --blue: #0EA5E9;
+        --slate-900: #0F172A;
+        --slate-800: #1E293B;
+        --slate-700: #334155;
+        --slate-600: #475569;
+    }
+    body {
+        margin:0;
+        font-family: system-ui, sans-serif;
+        background: linear-gradient(to bottom,var(--slate-900),var(--slate-800));
+        color:#F3F4F6;
+        min-height:100vh;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        overflow-x:hidden;
+    }
+    header{
+        text-align:center;
+        padding:40px 20px;
+        animation:fadeDown 1s ease-out;
+    }
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    h1{color:var(--cyan);font-size:2.4rem;margin:0 0 20px 0;text-shadow:0 4px 8px rgba(6,182,212,.3)}
+    #replay-btn{
+        background:linear-gradient(135deg,var(--cyan),var(--blue));
+        border:none;color:white;padding:12px 28px;border-radius:12px;font-weight:600;cursor:pointer;
+        transition:.3s transform,.3s box-shadow;box-shadow:0 8px 16px rgba(6,182,212,.4)
+    }
+    #replay-btn:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 12px 24px rgba(6,182,212,.6)}
+    .phones-container{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;padding-bottom:40px}
+    .phone-frame{
+        width:320px;height:660px;background:black;border-radius:40px;padding:50px 12px 70px;position:relative;box-shadow:0 30px 60px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.1);
+        transition:transform .5s;transform-style:preserve-3d
+    }
+    .phone-frame:hover{transform:rotateY(5deg) rotateX(5deg)}
+    .phone-frame:before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:30px;background:black;border-bottom-left-radius:20px;border-bottom-right-radius:20px;box-shadow:0 4px 8px rgba(0,0,0,.6)}
+    .phone-frame:after{content:"";position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:120px;height:5px;background:rgba(255,255,255,.2);border-radius:2.5px}
+    .volume-buttons{position:absolute;left:-2px;top:110px;width:4px;height:80px;background:linear-gradient(to bottom,#111,#222);border-radius:2px 0 0 2px;box-shadow:-2px 0 4px rgba(0,0,0,.5)}
+    .power-button{position:absolute;right:-2px;top:170px;width:4px;height:50px;background:linear-gradient(to bottom,#111,#222);border-radius:0 2px 2px 0;box-shadow:2px 0 4px rgba(0,0,0,.5)}
+    .phone-screen{width:100%;height:100%;background:var(--slate-900);border-radius:30px;display:flex;flex-direction:column;overflow:hidden;box-shadow:inset 0 4px 8px rgba(0,0,0,.5),inset 0 -4px 8px rgba(0,0,0,.5)}
+    .chat-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+    .chat-area::-webkit-scrollbar{width:6px}
+    .chat-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
+    .message{max-width:80%;padding:12px 18px;border-radius:24px;font-size:14px;line-height:1.4;box-shadow:0 4px 8px rgba(0,0,0,.3);position:relative;opacity:0;transform:translateY(30px);transition:.6s}
+    .message.show{opacity:1;transform:translateY(0)}
+    .message.self{align-self:flex-end;background:linear-gradient(135deg,var(--cyan),var(--blue));color:white}
+    .message.other{align-self:flex-start;background:linear-gradient(135deg,#4B5563,#5F6A7A);color:#F3F4F6}
+    .message-avatar{position:absolute;top:-18px;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#22D3EE,var(--cyan));color:var(--slate-900);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 4px 8px rgba(0,0,0,.4);border:2px solid var(--slate-800);font-size:15px}
+    .message.self .message-avatar{right:-24px}
+    .message.other .message-avatar{left:-24px}
+    .mini-app{background:linear-gradient(to bottom,#1D4ED8,#1E40AF);padding:20px;border-radius:20px;margin:10px 0;display:none;flex-direction:column;gap:16px;box-shadow:0 8px 16px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.1)}
+    .mini-app-title{text-align:center;font-weight:700;font-size:18px;color:#22D3EE;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+    .menu-list,.item-list,.personal-list,.game-options,.game-result,.shared-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+    .menu-item,.picnic-item,.game-choice{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1E3A8A,#1D4ED8);padding:10px 14px;border-radius:16px;transition:.3s transform,.3s box-shadow;box-shadow:0 4px 8px rgba(0,0,0,.3)}
+    .menu-item:hover,.picnic-item:hover,.game-choice:hover{transform:translateY(-4px);box-shadow:0 8px 16px rgba(0,0,0,.5)}
+    .item-icon{width:40px;height:40px;margin-right:12px}
+    .add-btn,.claim-btn,.submit-btn,.order-btn{background:linear-gradient(135deg,var(--cyan),var(--blue));border:none;color:white;padding:8px 16px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s transform,.2s box-shadow;box-shadow:0 2px 4px rgba(6,182,212,.3)}
+    .add-btn:hover,.claim-btn:hover,.submit-btn:hover,.order-btn:hover{transform:scale(1.08);box-shadow:0 4px 8px rgba(6,182,212,.5)}
+    .quantity-selector{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:8px}
+    .quantity-btn{background:linear-gradient(135deg,#4B5563,#6B7280);border:none;color:white;padding:2px 8px;border-radius:6px;font-weight:700;cursor:pointer}
+    .quantity-btn:hover{background:linear-gradient(135deg,#6B7280,#9CA3AF)}
+    .qty{font-weight:700;color:#22D3EE}
+    .shared-list,.game-result{background:linear-gradient(to bottom,#374151,#4B5563);padding:14px;border-radius:16px;box-shadow:inset 0 4px 8px rgba(0,0,0,.3)}
+    .payment-split,.ready-notif{text-align:center;color:#22D3EE;font-weight:700;font-size:16px}
+    .timer{text-align:center;color:#FBBF24;font-weight:600;font-size:16px;margin:8px 0;background:rgba(251,191,36,.1);padding:6px;border-radius:8px}
+    .score-board{text-align:center;color:#22D3EE;font-size:16px;margin-top:10px;background:rgba(34,211,238,.1);padding:6px;border-radius:8px;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+    <h1>Scenario 1: Lunch, Picnic &amp; Game</h1>
+    <button id="replay-btn">Replay Demo</button>
+</header>
+<div class="phones-container">
+    <div class="phone-frame">
+        <div class="volume-buttons"></div>
+        <div class="power-button"></div>
+        <div class="phone-screen"><div class="chat-area" id="alice-chat"></div></div>
+    </div>
+    <div class="phone-frame">
+        <div class="volume-buttons"></div>
+        <div class="power-button"></div>
+        <div class="phone-screen"><div class="chat-area" id="bob-chat"></div></div>
+    </div>
+    <div class="phone-frame">
+        <div class="volume-buttons"></div>
+        <div class="power-button"></div>
+        <div class="phone-screen"><div class="chat-area" id="charlie-chat"></div></div>
+    </div>
+</div>
+<script>
+/* Utility */
+const users={alice:{name:"Alice",chatId:"alice-chat"},bob:{name:"Bob",chatId:"bob-chat"},charlie:{name:"Charlie",chatId:"charlie-chat"}};
+function delay(ms){return new Promise(res=>setTimeout(res,ms));}
+function addMessageToAll(sender,text){Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const msg=document.createElement('div');msg.className=`message ${sender===u.name?'self':'other'}`;msg.innerHTML=`<span class="message-avatar">${sender[0]}</span>${text}`;chat.appendChild(msg);setTimeout(()=>msg.classList.add('show'),50);chat.scrollTop=chat.scrollHeight;});}
+function openMiniApp(type){Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);let app=chat.querySelector(`.${type}-app`);if(!app){app=document.createElement('div');app.className=`mini-app ${type}-app`;chat.appendChild(app);}app.style.display='flex';chat.scrollTop=chat.scrollHeight;});}
+/* Wolt Ordering */
+const menuItems=[{name:'Burger',price:10,icon:'🍔'},{name:'Fries',price:5,icon:'🍟'},{name:'Drink',price:3,icon:'🥤'}];
+let sharedOrder={};
+function renderWoltApp(){openMiniApp('wolt');Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const app=chat.querySelector('.wolt-app');app.innerHTML=`<div class="mini-app-title">KFC Group Order</div><ul class="menu-list"></ul><button class="submit-btn">Submit Choices</button><div class="shared-list"><h4>Joint Order</h4><ul class="order-list"></ul></div><div class="payment-split"></div>`;const list=app.querySelector('.menu-list');menuItems.forEach(item=>{const li=document.createElement('li');li.className='menu-item';li.innerHTML=`<span>${item.icon} ${item.name} - $${item.price}</span><div class="quantity-selector"><button class="quantity-btn">-</button><span class="qty">0</span><button class="quantity-btn">+</button></div><button class="add-btn">Add</button>`;const qty=li.querySelector('.qty');const [minus,plus]=li.querySelectorAll('.quantity-btn');minus.onclick=()=>{let q=parseInt(qty.textContent);if(q>0)qty.textContent=q-1};plus.onclick=()=>{let q=parseInt(qty.textContent);qty.textContent=q+1};li.querySelector('.add-btn').onclick=()=>{const q=parseInt(qty.textContent);if(q>0){addToOrder(u.name,item,q);qty.textContent='0';}};list.appendChild(li);});app.querySelector('.submit-btn').onclick=()=>{addMessageToAll(u.name,'Order submitted!');updateSharedOrder();};});}
+function addToOrder(user,item,qty){if(!sharedOrder[item.name])sharedOrder[item.name]={price:item.price,total:0,users:{}};sharedOrder[item.name].total+=qty;sharedOrder[item.name].users[user]=(sharedOrder[item.name].users[user]||0)+qty;updateSharedOrder();}
+function updateSharedOrder(){Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const orderList=chat.querySelector('.order-list');const split=chat.querySelector('.payment-split');orderList.innerHTML='';let costPerUser={Alice:0,Bob:0,Charlie:0};Object.keys(sharedOrder).forEach(item=>{const entry=sharedOrder[item];const li=document.createElement('li');li.textContent=`${item} x${entry.total} ($${entry.total*entry.price})`;orderList.appendChild(li);Object.keys(entry.users).forEach(name=>{costPerUser[name]+=entry.users[name]*entry.price;});});split.textContent=`Alice $${costPerUser.Alice} · Bob $${costPerUser.Bob} · Charlie $${costPerUser.Charlie}`;});}
+/* Picnic Planner */
+let personalLists={Alice:[],Bob:[],Charlie:[]};let sharedPicnic=[];
+function renderPicnicApp(){openMiniApp('picnic');Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const app=chat.querySelector('.picnic-app');app.innerHTML=`<div class="mini-app-title">Picnic Planner</div><div class="personal-section"><input class="item-input" placeholder="Add item"/><button class="add-btn">Add</button></div><ul class="personal-list"></ul><div class="shared-list"><h4>Who's Bringing What</h4><ul class="item-list"></ul></div>`;const input=app.querySelector('.item-input');app.querySelector('.add-btn').onclick=()=>{const val=input.value.trim();if(!val)return;personalLists[u.name].push(val);input.value='';updatePicnic();};});}
+function updatePicnic(){Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const app=chat.querySelector('.picnic-app');const personal=app.querySelector('.personal-list');const shared=app.querySelector('.item-list');personal.innerHTML='';personalLists[u.name].forEach(item=>{const li=document.createElement('li');li.className='picnic-item';li.innerHTML=`${item}<button class="claim-btn">Share</button>`;li.querySelector('.claim-btn').onclick=()=>{sharedPicnic.push({item,by:u.name});personalLists[u.name]=personalLists[u.name].filter(i=>i!==item);updatePicnic();};personal.appendChild(li);});shared.innerHTML='';sharedPicnic.forEach(({item,by})=>{const li=document.createElement('li');li.textContent=`${item} – ${by}`;shared.appendChild(li);});});}
+/* Rock Paper Scissors Game */
+let gameChoices={};let scores={Alice:0,Bob:0,Charlie:0};let round=1;const maxRounds=3;const options=['Rock','Paper','Scissors'];
+function renderGameApp(){openMiniApp('game');Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const app=chat.querySelector('.game-app');app.innerHTML=`<div class="mini-app-title">Rock • Paper • Scissors</div><div class="round-info">Round <span class="round-num">1</span> / ${maxRounds}</div><ul class="game-options"></ul><div class="game-result" style="display:none"></div><div class="score-board">Alice 0 · Bob 0 · Charlie 0</div>`;const opts=app.querySelector('.game-options');options.forEach(opt=>{const li=document.createElement('li');li.className='game-choice';li.textContent=opt;li.onclick=()=>{selectChoice(u.name,opt)};opts.appendChild(li);});});}
+function selectChoice(user,choice){if(gameChoices[user])return;gameChoices[user]=choice;addMessageToAll(user,`chooses ${choice}`);if(Object.keys(gameChoices).length===3){resolveRound();}}
+function resolveRound(){const beats={Rock:'Scissors',Paper:'Rock',Scissors:'Paper'};let winners=[];const players=Object.keys(gameChoices);players.forEach(p=>{const choice=gameChoices[p];if(players.every(o=>o===p||beats[choice]===gameChoices[o]))winners.push(p);});let resultText='Draw!';if(winners.length===1){scores[winners[0]]++;resultText=`${winners[0]} wins!`;}Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const app=chat.querySelector('.game-app');app.querySelector('.game-options').style.display='none';const res=app.querySelector('.game-result');res.style.display='block';res.textContent=resultText;app.querySelector('.score-board').textContent=`Alice ${scores.Alice} · Bob ${scores.Bob} · Charlie ${scores.Charlie}`;app.querySelector('.round-num').textContent=round;});round++;if(round<=maxRounds){setTimeout(()=>{gameChoices={};Object.values(users).forEach(u=>{const chat=document.getElementById(u.chatId);const app=chat.querySelector('.game-app');app.querySelector('.game-options').style.display='flex';app.querySelector('.game-result').style.display='none';});},2000);}else{setTimeout(()=>{addMessageToAll('System','Game over!');},1000);} }
+/* Demo flow */
+async function runDemo(){Object.values(users).forEach(u=>{document.getElementById(u.chatId).innerHTML='';});sharedOrder={};personalLists={Alice:[],Bob:[],Charlie:[]};sharedPicnic=[];scores={Alice:0,Bob:0,Charlie:0};round=1;gameChoices={};addMessageToAll('Alice','Hey team, lunch time?');await delay(800);addMessageToAll('Bob','KFC sounds great!');await delay(800);addMessageToAll('Charlie','I\'m in. Let\'s order.');await delay(800);renderWoltApp();await delay(800);addMessageToAll('Alice','I\'ll grab a burger');addToOrder('Alice',menuItems[0],1);await delay(600);addMessageToAll('Bob','Fries for me');addToOrder('Bob',menuItems[1],2);await delay(600);addMessageToAll('Charlie','A drink please');addToOrder('Charlie',menuItems[2],1);await delay(1000);addMessageToAll('System','Order placed!');await delay(1200);renderPicnicApp();addMessageToAll('Bob','Picnic later? I can bring chips');personalLists['Bob'].push('Chips');updatePicnic();await delay(800);addMessageToAll('Alice','I\'ll bring sandwiches');personalLists['Alice'].push('Sandwiches');updatePicnic();await delay(800);addMessageToAll('Charlie','I\'ll take care of drinks');personalLists['Charlie'].push('Drinks');updatePicnic();await delay(800);renderGameApp();addMessageToAll('Alice','While we wait, game time!');}
+runDemo();
+document.getElementById('replay-btn').onclick=runDemo;
+</script>
+</body>
+</html>
