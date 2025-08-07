@@ -12,16 +12,6 @@ function startChatDemo() {
       user: 'Let\'s play poker tonight',
       ai: 'Poker table is ready. Dealing cards…',
       app: { type: 'poker', players: ['You', 'Alice', 'Bob', 'Dana'] }
-    },
-    {
-      user: 'Let\'s order food from Wolt',
-      ai: 'Opening Wolt mini-app…',
-      app: { type: 'wolt', participants: [
-        { name: 'You', choice: 'Pizza' },
-        { name: 'Alice', choice: 'Sushi' },
-        { name: 'Bob', choice: 'Burger' },
-        { name: 'Dana', choice: 'Salad' }
-      ] }
     }
   ];
   let delay = 0;
@@ -50,9 +40,6 @@ function addMessage(container, text, isUser, app) {
     } else if (app.type === 'poker') {
       const pokerApp = createPokerApp(app.players);
       container.appendChild(pokerApp);
-    } else if (app.type === 'wolt') {
-      const woltApp = createWoltApp(app.participants);
-      container.appendChild(woltApp);
     }
   }
   container.scrollTop = container.scrollHeight;
@@ -60,26 +47,12 @@ function addMessage(container, text, isUser, app) {
 
 function createPokerApp(players) {
   const appDiv = document.createElement('div');
-  appDiv.className = 'self-start bg-green-700 rounded-lg p-4 max-w-[90%] text-white app-pop';
   const title = document.createElement('div');
   title.className = 'font-bold mb-2';
   title.textContent = 'Poker Game';
   appDiv.appendChild(title);
   const table = document.createElement('div');
   table.className = 'grid grid-cols-2 gap-2';
-  players.forEach((name, idx) => {
-    const seat = document.createElement('div');
-    seat.className = 'bg-green-800 rounded px-2 py-6 text-center relative overflow-hidden';
-    const label = document.createElement('div');
-    label.textContent = name;
-    seat.appendChild(label);
-    for (let c = 0; c < 2; c++) {
-      const card = document.createElement('div');
-      card.className = 'card-deal absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
-      card.textContent = '🂠';
-      card.style.animationDelay = (0.2 * idx + 0.1 * c) + 's';
-      seat.appendChild(card);
-    }
     table.appendChild(seat);
   });
   appDiv.appendChild(table);
