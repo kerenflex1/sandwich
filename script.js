@@ -22,7 +22,7 @@ function startChatDemo() {
         addMessage(container, flow.ai, false, flow.app);
       }, 700);
     }, delay);
-    delay += 2000;
+    delay += 4000;
   });
 }
 
@@ -47,20 +47,36 @@ function addMessage(container, text, isUser, app) {
 
 function createPokerApp(players) {
   const appDiv = document.createElement('div');
-  appDiv.className = 'self-start bg-green-700 rounded-lg p-4 max-w-[90%] text-white';
   const title = document.createElement('div');
   title.className = 'font-bold mb-2';
   title.textContent = 'Poker Game';
   appDiv.appendChild(title);
   const table = document.createElement('div');
   table.className = 'grid grid-cols-2 gap-2';
-  players.forEach(name => {
-    const seat = document.createElement('div');
-    seat.className = 'bg-green-800 rounded px-2 py-1 text-center';
-    seat.textContent = name;
     table.appendChild(seat);
   });
   appDiv.appendChild(table);
+  return appDiv;
+}
+
+function createWoltApp(participants) {
+  const appDiv = document.createElement('div');
+  appDiv.className = 'self-start bg-blue-700 rounded-lg p-4 max-w-[90%] text-white app-pop';
+  const title = document.createElement('div');
+  title.className = 'font-bold mb-2';
+  title.textContent = 'Wolt Order';
+  appDiv.appendChild(title);
+  const list = document.createElement('div');
+  appDiv.appendChild(list);
+  participants.forEach((p, idx) => {
+    setTimeout(() => {
+      const item = document.createElement('div');
+      item.className = 'bg-blue-800 rounded px-2 py-1 mt-1 opacity-0 transition-opacity duration-500';
+      item.textContent = p.name + ': ' + p.choice;
+      list.appendChild(item);
+      requestAnimationFrame(() => item.classList.remove('opacity-0'));
+    }, idx * 600);
+  });
   return appDiv;
 }
 
