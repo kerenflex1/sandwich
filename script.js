@@ -1,4 +1,5 @@
-// Minor update: script refreshed for demo
+// Refined chat demo with avatars and animated mini-app
+
 document.addEventListener('DOMContentLoaded', () => {
   startChatDemo();
   setupCharts();
@@ -7,76 +8,88 @@ document.addEventListener('DOMContentLoaded', () => {
 function startChatDemo() {
   const container = document.getElementById('chat-messages');
   if (!container) return;
+
   const flows = [
+    { sender: 'Alice', text: 'Anyone hungry for lunch?' },
+    { sender: 'Bob', text: "Let's order. Sushi?" },
+    { sender: 'You', text: 'Olamo, open a Wolt group order.' },
     {
-      user: 'Let\'s play poker tonight',
-      ai: 'Poker table is ready. Dealing cards…',
-      app: { type: 'poker', players: ['You', 'Alice', 'Bob', 'Dana'] }
+      sender: 'Olamo',
+      text: 'Sure — everyone add your meal.',
+      app: {
+        type: 'wolt',
+        participants: [
+          { name: 'Alice', choice: 'Salmon sushi' },
+          { name: 'Bob', choice: 'Veggie burger' },
+          { name: 'Dana', choice: 'Caesar salad' },
+          { name: 'You', choice: 'Falafel wrap' }
+        ]
+      }
     }
   ];
+
   let delay = 0;
-  flows.forEach(flow => {
-    setTimeout(() => {
-      addMessage(container, flow.user, true);
-      setTimeout(() => {
-        addMessage(container, flow.ai, false, flow.app);
-      }, 700);
-    }, delay);
-    delay += 4000;
+  flows.forEach(step => {
+    setTimeout(() => addMessage(container, step), delay);
+    delay += 2500;
   });
 }
 
-function addMessage(container, text, isUser, app) {
+function addMessage(container, { sender, text, app }) {
+  const isSelf = sender === 'You';
+  const wrapper = document.createElement('div');
+  wrapper.className = `message-wrapper ${isSelf ? 'self' : ''}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'chat-avatar';
+  avatar.textContent = sender[0];
+
   const bubble = document.createElement('div');
-  bubble.className = (isUser ? 'self-end bg-[#0097A7]' : 'self-start bg-gray-700') + ' text-white rounded-lg px-4 py-2 max-w-[70%]';
+  bubble.className = `${isSelf ? 'bg-[#0097A7]' : 'bg-gray-700'} chat-bubble`;
   bubble.textContent = text;
-  container.appendChild(bubble);
-  if (app) {
-    if (typeof app === 'string') {
-      const appDiv = document.createElement('div');
-      appDiv.className = 'self-start bg-gray-700 rounded-lg px-4 py-2 max-w-[70%] text-sm text-gray-200';
-      appDiv.textContent = app;
-      container.appendChild(appDiv);
-    } else if (app.type === 'poker') {
-      const pokerApp = createPokerApp(app.players);
-      container.appendChild(pokerApp);
-    }
+
+  if (isSelf) {
+    wrapper.appendChild(bubble);
+    wrapper.appendChild(avatar);
+  } else {
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(bubble);
   }
+
+  container.appendChild(wrapper);
+  requestAnimationFrame(() => bubble.classList.add('show'));
+
+  if (app && app.type === 'wolt') {
+    setTimeout(() => {
+      const appWrapper = document.createElement('div');
+      appWrapper.className = 'app-pop bg-blue-700 text-white rounded-lg p-4 max-w-[90%] self-start';
+      appWrapper.appendChild(createWoltApp(app.participants));
+      container.appendChild(appWrapper);
+      requestAnimationFrame(() => appWrapper.classList.add('show'));
+      container.scrollTop = container.scrollHeight;
+    }, 800);
+  }
+
   container.scrollTop = container.scrollHeight;
 }
 
-function createPokerApp(players) {
-  const appDiv = document.createElement('div');
-  const title = document.createElement('div');
-  title.className = 'font-bold mb-2';
-  title.textContent = 'Poker Game';
-  appDiv.appendChild(title);
-  const table = document.createElement('div');
-  table.className = 'grid grid-cols-2 gap-2';
-    table.appendChild(seat);
-  });
-  appDiv.appendChild(table);
-  return appDiv;
-}
-
 function createWoltApp(participants) {
-  const appDiv = document.createElement('div');
-  appDiv.className = 'self-start bg-blue-700 rounded-lg p-4 max-w-[90%] text-white app-pop';
   const title = document.createElement('div');
   title.className = 'font-bold mb-2';
-  title.textContent = 'Wolt Order';
-  appDiv.appendChild(title);
+  title.textContent = 'Wolt Group Order';
+
   const list = document.createElement('div');
-  appDiv.appendChild(list);
-  participants.forEach((p, idx) => {
-    setTimeout(() => {
-      const item = document.createElement('div');
-      item.className = 'bg-blue-800 rounded px-2 py-1 mt-1 opacity-0 transition-opacity duration-500';
-      item.textContent = p.name + ': ' + p.choice;
-      list.appendChild(item);
-      requestAnimationFrame(() => item.classList.remove('opacity-0'));
-    }, idx * 600);
+  participants.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'bg-blue-800 rounded px-2 py-1 mt-1 opacity-0 transition-opacity duration-500';
+    item.textContent = `${p.name}: ${p.choice}`;
+    list.appendChild(item);
+    setTimeout(() => item.classList.remove('opacity-0'), i * 600);
   });
+
+  const appDiv = document.createElement('div');
+  appDiv.appendChild(title);
+  appDiv.appendChild(list);
   return appDiv;
 }
 
@@ -92,7 +105,7 @@ function setupCharts() {
           backgroundColor: ['#0097A7', '#00ACC1', '#26C6DA', '#4DD0E1', '#80DEEA']
         }]
       },
-      options: {plugins:{legend:{labels:{color:'white'}}}}
+      options: { plugins: { legend: { labels: { color: 'white' } } } }
     });
   }
 
@@ -108,7 +121,13 @@ function setupCharts() {
           backgroundColor: '#0097A7'
         }]
       },
-      options: {scales:{x:{ticks:{color:'white'}},y:{ticks:{color:'white'}}},plugins:{legend:{display:false}}}
+      options: {
+        scales: {
+          x: { ticks: { color: 'white' } },
+          y: { ticks: { color: 'white' } }
+        },
+        plugins: { legend: { display: false } }
+      }
     });
   }
 
@@ -119,11 +138,11 @@ function setupCharts() {
       data: {
         labels: ['Talent', 'Infra', 'Marketing', 'Compliance'],
         datasets: [{
-          data: [50,25,20,5],
+          data: [50, 25, 20, 5],
           backgroundColor: ['#0097A7', '#00ACC1', '#26C6DA', '#4DD0E1']
         }]
       },
-      options: {plugins:{legend:{labels:{color:'white'}}}}
+      options: { plugins: { legend: { labels: { color: 'white' } } } }
     });
   }
 }
