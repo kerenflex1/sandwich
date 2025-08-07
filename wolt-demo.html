@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Olamo Wolt Mini-App Demo</title>
+<style>
+:root {
+  --accent: #0891B2;
+  --bob: #10B981;
+  --charlie: #F59E0B;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+  text-align: center;
+  color: #333;
+}
+h1 {
+  margin: 20px 0 10px;
+}
+.phones {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.phone {
+  width: 320px;
+  height: 640px;
+  border: 16px solid #000;
+  border-radius: 40px;
+  position: relative;
+  background: #000;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+.phone .label {
+  position: absolute;
+  top: -30px;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
+.screen {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+.notch {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 30px;
+  background: #000;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+.chat {
+  height: 100%;
+  overflow-y: auto;
+  padding: 40px 10px 180px;
+  box-sizing: border-box;
+}
+.message {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-right: 6px;
+}
+.bubble {
+  background: #f1f1f1;
+  padding: 8px 12px;
+  border-radius: 14px;
+  max-width: 220px;
+  text-align: left;
+}
+.typing .bubble {
+  background: #e0e0e0;
+}
+.typing span {
+  width: 6px;
+  height: 6px;
+  background: #888;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
+  animation: typing 1s infinite;
+}
+@keyframes typing {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+.mini-app {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: #fff;
+  border-top: 2px solid #ddd;
+  transform: translateY(100%);
+  transition: transform 0.6s ease;
+  display: flex;
+  flex-direction: column;
+}
+.mini-app.active {
+  transform: translateY(0);
+}
+.olamo-listen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px;
+}
+.olamo-listen .pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 6px;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+.menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+.menu .item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+.menu .item svg {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+.menu .item span {
+  flex: 1;
+  text-align: left;
+}
+.menu .item button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.cart {
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  height: 40%;
+  overflow-y: auto;
+  font-size: 14px;
+}
+.cart h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+.cart ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.cart li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.order-split {
+  display: none;
+  padding: 10px;
+  text-align: left;
+}
+.order-split.active {
+  display: block;
+}
+.order-split .pay-btn {
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 10px;
+}
+.order-placed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+.order-placed.show {
+  opacity: 1;
+}
+.order-placed svg {
+  width: 60px;
+  height: 60px;
+  fill: var(--accent);
+  margin-bottom: 10px;
+}
+.confetti {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  top: 0;
+  animation: confetti 3s ease-out forwards;
+}
+@keyframes confetti {
+  from { transform: translateY(0); }
+  to { transform: translateY(600px); }
+}
+button.play {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000;
+}
+footer {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 14px;
+}
+@media (max-width: 1000px) {
+  .phones { flex-direction: column; align-items: center; }
+  .phone { margin-bottom: 40px; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+</head>
+<body>
+<button id="replay" class="play" aria-label="Replay Demo">Replay Demo</button>
+<h1>Olamo Wolt Mini-App Demo</h1>
+<div class="phones">
+  <div class="phone" data-user="Alice">
+    <div class="label">Alice</div>
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="chat" aria-live="polite"></div>
+      <div class="mini-app">
+        <div class="olamo-listen">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2z"/>
+          </svg>
+          <div class="pulse" aria-hidden="true"></div>
+        </div>
+        <div class="menu"></div>
+        <div class="cart">
+          <h3>Joint Order</h3>
+          <ul></ul>
+        </div>
+        <div class="order-split">
+          <div>Alice $15</div>
+          <div>Bob $12</div>
+          <div>Charlie $10</div>
+          <div class="pay-btn"> Pay</div>
+        </div>
+      </div>
+      <div class="order-placed" aria-label="Order placed">
+        <svg viewBox="0 0 24 24">
+          <path d="M20.285 6.708l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/>
+        </svg>
+        <p>Order Placed!</p>
+      </div>
+    </div>
+  </div>
+  <div class="phone" data-user="Bob">
+    <div class="label">Bob</div>
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="chat" aria-live="polite"></div>
+      <div class="mini-app">
+        <div class="olamo-listen">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2z"/>
+          </svg>
+          <div class="pulse" aria-hidden="true"></div>
+        </div>
+        <div class="menu"></div>
+        <div class="cart">
+          <h3>Joint Order</h3>
+          <ul></ul>
+        </div>
+        <div class="order-split">
+          <div>Alice $15</div>
+          <div>Bob $12</div>
+          <div>Charlie $10</div>
+          <div class="pay-btn"> Pay</div>
+        </div>
+      </div>
+      <div class="order-placed" aria-label="Order placed">
+        <svg viewBox="0 0 24 24">
+          <path d="M20.285 6.708l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/>
+        </svg>
+        <p>Order Placed!</p>
+      </div>
+    </div>
+  </div>
+  <div class="phone" data-user="Charlie">
+    <div class="label">Charlie</div>
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="chat" aria-live="polite"></div>
+      <div class="mini-app">
+        <div class="olamo-listen">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2z"/>
+          </svg>
+          <div class="pulse" aria-hidden="true"></div>
+        </div>
+        <div class="menu"></div>
+        <div class="cart">
+          <h3>Joint Order</h3>
+          <ul></ul>
+        </div>
+        <div class="order-split">
+          <div>Alice $15</div>
+          <div>Bob $12</div>
+          <div>Charlie $10</div>
+          <div class="pay-btn"> Pay</div>
+        </div>
+      </div>
+      <div class="order-placed" aria-label="Order placed">
+        <svg viewBox="0 0 24 24">
+          <path d="M20.285 6.708l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/>
+        </svg>
+        <p>Order Placed!</p>
+      </div>
+    </div>
+  </div>
+</div>
+<footer>Simulated demo showing synced group ordering via Olamo.</footer>
+<script>
+const users = {
+  Alice: { color: 'var(--accent)' },
+  Bob: { color: 'var(--bob)' },
+  Charlie: { color: 'var(--charlie)' }
+};
+const phones = document.querySelectorAll('.phone');
+const demoTimeouts = [];
+function avatar(user){
+  const div = document.createElement('div');
+  div.className = 'avatar';
+  div.style.background = users[user].color;
+  div.textContent = user.charAt(0);
+  return div;
+}
+function addMessage(user, text){
+  phones.forEach(p => {
+    const chat = p.querySelector('.chat');
+    const msg = document.createElement('div');
+    msg.className = 'message';
+    msg.appendChild(avatar(user));
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    msg.appendChild(bubble);
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  });
+}
+function showTyping(user){
+  phones.forEach(p => {
+    const chat = p.querySelector('.chat');
+    const msg = document.createElement('div');
+    msg.className = 'message typing';
+    msg.appendChild(avatar(user));
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = '<span></span><span></span><span></span>';
+    msg.appendChild(bubble);
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  });
+}
+function clearTyping(){
+  document.querySelectorAll('.typing').forEach(t => t.remove());
+}
+const order = {};
+function updateCart(){
+  phones.forEach(p => {
+    const ul = p.querySelector('.cart ul');
+    ul.innerHTML = '';
+    Object.keys(order).forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${item}</span><span>${order[item].count} x $${order[item].price}</span>`;
+      ul.appendChild(li);
+    });
+  });
+}
+function addItem(user,item,price){
+  order[item] = order[item] || {count:0, price};
+  order[item].count++;
+  updateCart();
+}
+function openMiniApp(){
+  phones.forEach(p => {
+    const mini = p.querySelector('.mini-app');
+    mini.classList.add('active');
+    const menu = mini.querySelector('.menu');
+    menu.innerHTML = `
+      <div class="item"><svg viewBox='0 0 24 24'><circle cx='12' cy='7' r='5' fill='#FBBF24'/><rect x='4' y='12' width='16' height='8' fill='#DC2626'/><rect x='4' y='12' width='16' height='2' fill='#FBBF24'/></svg><span>Burger $5</span><button>Add</button></div>
+      <div class="item"><svg viewBox='0 0 24 24'><rect x='3' y='3' width='18' height='18' fill='#FDE68A'/><rect x='5' y='5' width='14' height='14' fill='#F59E0B'/></svg><span>Fries $3</span><button>Add</button></div>
+      <div class="item"><svg viewBox='0 0 24 24'><rect x='6' y='2' width='12' height='20' rx='2' fill='#3B82F6'/><rect x='8' y='4' width='8' height='12' fill='#93C5FD'/></svg><span>Drink $2</span><button>Add</button></div>`;
+    setTimeout(()=>{menu.scrollTo({top:80, behavior:'smooth'});},1000);
+  });
+}
+function showOrderSplit(){
+  phones.forEach(p => p.querySelector('.order-split').classList.add('active'));
+}
+function showOrderPlaced(){
+  phones.forEach(p => {
+    const overlay = p.querySelector('.order-placed');
+    overlay.classList.add('show');
+    for(let i=0;i<20;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random()*300 + 'px';
+      c.style.background = ['var(--accent)','var(--bob)','var(--charlie)'][i%3];
+      overlay.appendChild(c);
+    }
+  });
+}
+function initPhones(){
+  phones.forEach(p => {
+    p.querySelector('.chat').innerHTML = '';
+    const mini = p.querySelector('.mini-app');
+    mini.classList.remove('active');
+    mini.querySelector('.menu').innerHTML = '';
+    mini.querySelector('.cart ul').innerHTML = '';
+    mini.querySelector('.order-split').classList.remove('active');
+    const overlay = p.querySelector('.order-placed');
+    overlay.classList.remove('show');
+    overlay.querySelectorAll('.confetti').forEach(c=>c.remove());
+  });
+  for (const k in order) delete order[k];
+}
+function runDemo(){
+  initPhones();
+  demoTimeouts.push(setTimeout(()=>{showTyping('Alice');},1000));
+  demoTimeouts.push(setTimeout(()=>{clearTyping(); addMessage('Alice','Who wants to order lunch from KFC?');},2000));
+  demoTimeouts.push(setTimeout(()=>{showTyping('Bob');},4000));
+  demoTimeouts.push(setTimeout(()=>{clearTyping(); addMessage('Bob','Sure!');},5000));
+  demoTimeouts.push(setTimeout(()=>{showTyping('Charlie');},6000));
+  demoTimeouts.push(setTimeout(()=>{clearTyping(); addMessage('Charlie',"I'm in!");},7000));
+  demoTimeouts.push(setTimeout(()=>{showTyping('Alice');},9000));
+  demoTimeouts.push(setTimeout(()=>{clearTyping(); addMessage('Alice','Olamo, open joined Wolt from KFC.'); openMiniApp();},10000));
+  demoTimeouts.push(setTimeout(()=>{addItem('Alice','Burger',5);},12000));
+  demoTimeouts.push(setTimeout(()=>{addItem('Bob','Fries',3);},16000));
+  demoTimeouts.push(setTimeout(()=>{addItem('Charlie','Drink',2);},20000));
+  demoTimeouts.push(setTimeout(()=>{showOrderSplit();},25000));
+  demoTimeouts.push(setTimeout(()=>{showOrderPlaced();},30000));
+}
+function replay(){
+  demoTimeouts.forEach(t=>clearTimeout(t));
+  runDemo();
+}
+document.getElementById('replay').addEventListener('click', replay);
+runDemo();
+</script>
+</body>
+</html>
