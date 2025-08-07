@@ -20,3 +20,18 @@ body { font-family: 'Inter', sans-serif; }
   transition:transform .3s;
 }
 .card:hover {transform:scale(1.05);}
+
+.message-wrapper{display:flex;align-items:flex-end;margin-bottom:0.5rem;}
+.message-wrapper.self{justify-content:flex-end;}
+.chat-avatar{
+  width:2rem;height:2rem;border-radius:9999px;
+  background:#4b5563;display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:bold;color:white;margin:0 0.5rem;
+}
+.chat-bubble{
+  border-radius:0.5rem;padding:0.5rem 1rem;max-width:70%;
+  color:white;opacity:0;transform:translateY(0.5rem);transition:all .3s;
+}
+.chat-bubble.show{opacity:1;transform:translateY(0);}
+.app-pop{opacity:0;transform:scale(0.95);transition:all .3s;margin-top:0.5rem;}
+.app-pop.show{opacity:1;transform:scale(1);}
